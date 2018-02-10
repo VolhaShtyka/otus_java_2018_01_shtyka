@@ -8,7 +8,7 @@
     <description>Home work for lesson 1 (Maven configuration)</description>
 
     <groupId>ru.otus.shtyka</groupId>
-    <artifactId>L01.maven</artifactId>
+    <artifactId>maven-lesson1</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
