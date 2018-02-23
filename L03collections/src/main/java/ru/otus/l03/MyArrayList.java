@@ -17,7 +17,7 @@ public class MyArrayList<T> implements List<T> {
         if (size < 0) {
             throw new IllegalArgumentException("Illegal capacity");
         }
-        this.size = size;
+        this.size = 0;
         array = new Object[size];
     }
 
@@ -43,7 +43,9 @@ public class MyArrayList<T> implements List<T> {
 
     @Override
     public Object[] toArray() {
-        return array;
+        Object[] fixArray = new Object[size];
+        System.arraycopy(array, 0, fixArray, 0, size);
+        return fixArray;
     }
 
     @Override
