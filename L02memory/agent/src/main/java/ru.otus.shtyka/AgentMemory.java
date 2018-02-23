@@ -1,4 +1,4 @@
-package ru.otus.l02;
+package ru.otus.shtyka;
 
 import java.lang.instrument.Instrumentation;
 

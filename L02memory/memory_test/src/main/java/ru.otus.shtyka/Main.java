@@ -1,4 +1,4 @@
-package ru.otus.l02;
+package ru.otus.shtyka;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
