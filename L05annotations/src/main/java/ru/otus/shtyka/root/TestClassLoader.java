@@ -101,8 +101,8 @@ public class TestClassLoader extends ClassLoader {
                 afterMethods.add(method);
             }
         }
-        Object instance = ReflectionHelper.instantiate(clazz);
         testMethods.forEach(t -> {
+            Object instance = ReflectionHelper.instantiate(clazz);
             beforeMethods.forEach(b -> executeMethod(instance, b));
             executeMethod(instance, t, true);
             afterMethods.forEach(a -> executeMethod(instance, a));
