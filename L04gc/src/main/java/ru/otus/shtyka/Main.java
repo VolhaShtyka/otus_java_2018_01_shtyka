@@ -28,7 +28,7 @@ public class Main {
         Benchmark mbean = new Benchmark();
         mbs.registerMBean(mbean, name);
 
-        int size = 5020;
+        int size = 4000;
         int millis = 1000;
         mbean.setSize(size);
         mbean.sleep(millis);
