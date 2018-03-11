@@ -1,20 +1,15 @@
 package ru.otus.shtyka.root;
 
+import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
 import ru.otus.shtyka.root.annotations.After;
 import ru.otus.shtyka.root.annotations.Before;
 import ru.otus.shtyka.root.annotations.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class TestClassLoader extends ClassLoader {
@@ -31,60 +26,10 @@ public class TestClassLoader extends ClassLoader {
     }
 
     public static void loadTestByPackage(String packageName) {
-        String packageNameRepl = packageName.replaceAll("\\.", "/");
-        URL packageURL = Thread.currentThread().getContextClassLoader().getResource(packageNameRepl);
-        if (packageURL == null) {
-            throw new IllegalArgumentException("Incorrect package name " + packageName);
-        }
-        List<Class> classes;
-        if (packageURL.getFile().contains("jar!")) {
-            classes = readTestJar(packageURL, packageNameRepl);
-        } else {
-            classes = readTestClass(packageURL, packageName);
-        }
-        System.out.println("Load from package: " + packageName);
-        classes.stream().filter(c -> c.getName().endsWith("Test")).forEach(c -> {
-            System.out.println("Run class: " + c.getName());
-            loadMethods(c);
-        });
-    }
-
-    private static List<Class> readTestClass(URL packageURL, String packageName) {
-        List<Class> classes = new ArrayList<>();
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader((InputStream) packageURL.getContent()));
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.endsWith(".class")) {
-                    classes.add(Class.forName(packageName + "." + line.substring(0, line.lastIndexOf('.'))));
-                }
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Cannot read from package " + packageName);
-            e.printStackTrace();
-        }
-        return classes;
-    }
-
-    private static List<Class> readTestJar(URL packageURL, String packageName) {
-        List<Class> classes = new ArrayList<>();
-        try {
-            JarFile jarFile = ((JarURLConnection) packageURL.openConnection()).getJarFile();
-            Enumeration<JarEntry> e = jarFile.entries();
-            while (e.hasMoreElements()) {
-                JarEntry je = e.nextElement();
-                if (je.isDirectory() || !je.getName().startsWith(packageName) || !je.getName().endsWith(".class")) {
-                    continue;
-                }
-                String className = je.getName().substring(0, je.getName().lastIndexOf('.')).replace('/', '.');
-                classes.add(Class.forName(className));
-            }
-        } catch (IOException e) {
-            System.out.println("Cannot read from jar");
-        } catch (ClassNotFoundException e1) {
-            System.out.println("Cannot read class file");
-        }
-        return classes;
+        Set<Class> classes = new HashSet<>();
+        new Reflections(packageName, new MethodAnnotationsScanner()).
+                getMethodsAnnotatedWith(Test.class).forEach(m -> classes.add(m.getDeclaringClass()));
+        classes.forEach(TestClassLoader::loadMethods);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -102,7 +47,7 @@ public class TestClassLoader extends ClassLoader {
             }
         }
         testMethods.forEach(t -> {
-            Object instance = ReflectionHelper.instantiate(clazz);
+            Object instance = ReflectionHelper.instantiate(t.getDeclaringClass());
             beforeMethods.forEach(b -> executeMethod(instance, b));
             executeMethod(instance, t, true);
             afterMethods.forEach(a -> executeMethod(instance, a));
