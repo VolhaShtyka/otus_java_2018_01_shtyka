@@ -8,7 +8,9 @@ public class Main {
         atm.getSumOfMinimumNumberOfBanknotes(BigDecimal.valueOf(165));
 
         atm.depositToAccount(NOMINAL.FIFE, 8);
+        System.out.println("ATM contains " + atm.getCashBalance() + " RUB");
 
         atm.getSumOfMinimumNumberOfBanknotes(BigDecimal.valueOf(10));
+        System.out.println("ATM contains " + atm.getCashBalance() + " RUB");
     }
 }
