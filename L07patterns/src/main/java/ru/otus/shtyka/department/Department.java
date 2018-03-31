@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Department {
     private static Department department;
-    private List<ATMObserver> cashPoints = new ArrayList<>();
+    private List<CashPoint> cashPoints = new ArrayList<>();
 
     private Department() {
     }
@@ -18,15 +18,15 @@ public class Department {
         return department;
     }
 
-    public void register(ATMObserver atm) {
+    public void register(CashPoint atm) {
         cashPoints.add(atm);
     }
 
     public void restoreAllCashPointsFromMemento() {
-        cashPoints.forEach(ATMObserver::restoreFromMemento);
+        cashPoints.forEach(CashPoint::restoreFromMemento);
     }
 
-    public BigDecimal getSumAllCashPointsByCurrency(CURRENCY currency) {
-        return cashPoints.stream().map(b -> b.getSum(currency)).reduce(BigDecimal.ZERO, BigDecimal::add);
+    public BigDecimal getSumAllCashPoints() {
+        return cashPoints.stream().map(CashPoint::getCashBalance).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

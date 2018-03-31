@@ -1,15 +1,15 @@
 package ru.otus.shtyka.storage;
 
-import ru.otus.shtyka.department.ATMObserver;
+import ru.otus.shtyka.department.CashPoint;
 
-public class Memento<T extends ATMObserver> {
-    private final T atm;
+public class Memento {
+    private final CashPoint atm;
 
-    public Memento(final T atm) {
+    Memento(final CashPoint atm) {
         this.atm = atm;
     }
 
-    public T getSavedState() {
+    public CashPoint getSavedState() {
         return atm;
     }
 }

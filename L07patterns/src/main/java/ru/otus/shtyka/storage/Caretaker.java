@@ -1,29 +1,21 @@
 package ru.otus.shtyka.storage;
 
-import ru.otus.shtyka.department.ATMObserver;
+import ru.otus.shtyka.department.CashPoint;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Caretaker {
-    private final Map<ATMObserver, Memento> savedStates = new HashMap<>();
-    private static Caretaker caretaker;
+public class Caretaker implements Cloneable {
+    private static final Map<CashPoint, Memento> savedStates = new HashMap<>();
 
     private Caretaker() {
     }
 
-    public static Caretaker getInstance() {
-        if (caretaker == null) {
-            caretaker = new Caretaker();
-        }
-        return caretaker;
+    public static void put(CashPoint atm) {
+        savedStates.put(atm, new Memento(atm.copy()));
     }
 
-    public void put(ATMObserver atm, Memento state) {
-        savedStates.put(atm, state);
-    }
-
-    public <T extends ATMObserver> Memento get(T atm) {
+    public static Memento get(CashPoint atm) {
         return savedStates.get(atm);
     }
 }

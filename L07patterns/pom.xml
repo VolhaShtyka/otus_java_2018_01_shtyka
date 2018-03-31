@@ -8,6 +8,14 @@
     <artifactId>patterns</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.kamranzafar.commons</groupId>
+            <artifactId>object-cloner</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -33,5 +41,5 @@
         </plugins>
     </build>
 
-    
+
 </project>

@@ -1,41 +1,31 @@
 package ru.otus.shtyka;
 
-import ru.otus.shtyka.department.ATMRub;
-import ru.otus.shtyka.department.ATMUsd;
-import ru.otus.shtyka.department.CURRENCY;
+import ru.otus.shtyka.sum_strategy.CURRENCY;
+import ru.otus.shtyka.department.CashPoint;
 import ru.otus.shtyka.department.Department;
 
 import java.math.BigDecimal;
 
 public class Main {
-    public static void main(String[] args) throws CloneNotSupportedException {
+    public static void main(String[] args) {
         Department department = Department.getInstance();
-        ATMRub atmKurskaya = new ATMRub("Kurskaya", BigDecimal.valueOf(300));
-        ATMRub atmMira = new ATMRub("Prospekt Mira", BigDecimal.valueOf(200));
-        ATMUsd atmUsdMira = new ATMUsd("Prospekt Mira", BigDecimal.valueOf(1200));
+        CashPoint atmKurskaya = new CashPoint("Kurskaya", 300);
+        CashPoint atmMira = new CashPoint("Prospekt Mira", 200);
 
-        System.out.println("Balance all cash points in USD: " + department.getSumAllCashPointsByCurrency(CURRENCY.USD));
-        System.out.println("Balance all cash points in EURO: " + department.getSumAllCashPointsByCurrency(CURRENCY.EURO));
-        System.out.println("Balance all cash points in RUB: " + department.getSumAllCashPointsByCurrency(CURRENCY.RUB) + "\n");
+        System.out.println("Balance all cash points in RUB: " + department.getSumAllCashPoints() + "\n");
 
         department.register(atmKurskaya);
         department.register(atmMira);
-        department.register(atmUsdMira);
-
         System.out.println("Balance all cash points after register");
-        System.out.println("Balance all cash points in USD: " + department.getSumAllCashPointsByCurrency(CURRENCY.USD));
-        System.out.println("Balance all cash points in EURO: " + department.getSumAllCashPointsByCurrency(CURRENCY.EURO));
-        System.out.println("Balance all cash points in RUB: " + department.getSumAllCashPointsByCurrency(CURRENCY.RUB) + "\n");
+        System.out.println("Balance all cash points in RUB: " + department.getSumAllCashPoints() + "\n");
 
-        atmKurskaya.increaseCashBalance(BigDecimal.valueOf(1900));
-        atmKurskaya.decreaseCashBalance(BigDecimal.valueOf(19));
-        atmMira.decreaseCashBalance(BigDecimal.valueOf(30));
-        atmUsdMira.decreaseCashBalance(BigDecimal.valueOf(155));
+        atmKurskaya.getSumOfMinimumNumberOfBanknotes(BigDecimal.valueOf(1900), CURRENCY.RUB);
+        atmMira.getSumOfMinimumNumberOfBanknotes(BigDecimal.valueOf(164), CURRENCY.USD);
+        atmMira.getSumOfMinimumNumberOfBanknotes(BigDecimal.valueOf(22), CURRENCY.EURO);
 
-        System.out.println("Balance all cash points in USD: " + department.getSumAllCashPointsByCurrency(CURRENCY.USD) + "\n");
+
+        System.out.println("Balance all cash points in RUB: " + department.getSumAllCashPoints());
         department.restoreAllCashPointsFromMemento();
-        System.out.println("Balance all cash points in USD: " + department.getSumAllCashPointsByCurrency(CURRENCY.USD));
-        System.out.println("Balance all cash points in EURO: " + department.getSumAllCashPointsByCurrency(CURRENCY.EURO));
-        System.out.println("Balance all cash points in RUB: " + department.getSumAllCashPointsByCurrency(CURRENCY.RUB));
+        System.out.println("Balance all cash points in RUB: " + department.getSumAllCashPoints());
     }
 }
