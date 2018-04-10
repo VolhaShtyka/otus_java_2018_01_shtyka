@@ -4,7 +4,8 @@ import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
 import ru.otus.shtyka.json_writer.test_objects.EmptyClass;
-import ru.otus.shtyka.json_writer.test_objects.TestClass;
+import ru.otus.shtyka.json_writer.test_objects.TestAClass;
+import ru.otus.shtyka.json_writer.test_objects.TestBClass;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,11 +52,20 @@ public class JsonWriterTest {
     }
 
     @Test
-    public void writeObjectTest() {
-        TestClass testValue = new TestClass(36, "Trololo", Arrays.asList(53.5, 659.36, 698.1));
+    public void writeObjectBTest() {
+        TestBClass testValue = new TestBClass(36, "Trololo", Arrays.asList(53.5, 659.36, 698.1));
         String testJsonValue = writer.toJson(testValue);
         assertEquals("JSON Strings are not identical", gson.toJson(testValue), testJsonValue);
-        assertEquals("GSON Values are not identical", gson.fromJson(testJsonValue, TestClass.class), testValue);
+        assertEquals("GSON Values are not identical", gson.fromJson(testJsonValue, TestBClass.class), testValue);
+    }
+
+    @Test
+    public void writeObjectATest() {
+        TestBClass bClassValue = new TestBClass(20, "Trolo", Arrays.asList(1.0, 9.36, 698.1));
+        TestAClass testValue = new TestAClass(1, "Trolalo", Arrays.asList(5.9, 325.20), bClassValue);
+        String testJsonValue = writer.toJson(testValue);
+        assertEquals("JSON Strings are not identical", gson.toJson(testValue), testJsonValue);
+        assertEquals("GSON Values are not identical", gson.fromJson(testJsonValue, TestAClass.class), testValue);
     }
 
     @Test
