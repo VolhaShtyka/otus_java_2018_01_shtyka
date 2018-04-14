@@ -15,7 +15,7 @@ public class JsonWriterObject implements JsonWritingAlgorithm {
             field.setAccessible(true);
             try {
                 Object fieldValue = field.get(object);
-                if (!(fieldValue instanceof Number || fieldValue instanceof String || fieldValue instanceof Collection || fieldValue instanceof Boolean)) {
+                if (!isSimpleValue(fieldValue)) {
                     jsonObject.put(field.getName(), JSONValue.parse(this.toJson(fieldValue)));
                 } else {
                     jsonObject.put(field.getName(), fieldValue);
@@ -25,5 +25,9 @@ public class JsonWriterObject implements JsonWritingAlgorithm {
             }
         }
         return jsonObject.toJSONString();
+    }
+
+    static final boolean isSimpleValue(final Object object) {
+        return object instanceof Number || object instanceof String || object instanceof Collection || object instanceof Boolean;
     }
 }

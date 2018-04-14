@@ -1,6 +1,6 @@
 package ru.otus.shtyka.json_writer;
 
-import java.util.Collection;
+import static ru.otus.shtyka.json_writer.JsonWriterObject.isSimpleValue;
 
 public class JsonWriter {
 
@@ -13,7 +13,7 @@ public class JsonWriter {
     }
 
     private JsonWritingAlgorithm getJSONWriter(Object object) {
-        if (object instanceof Number || object instanceof String || object instanceof Collection || object instanceof Boolean) {
+        if (isSimpleValue(object)) {
             return new JsonWriterSimple();
         } else {
             return new JsonWriterObject();
