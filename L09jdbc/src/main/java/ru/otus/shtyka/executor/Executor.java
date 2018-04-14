@@ -29,6 +29,17 @@ public class Executor {
         }
     }
 
+    public long execUpdate(String update, ExecuteHandler prepare, int generateColumnIndex) throws SQLException {
+        try (PreparedStatement stmt = getConnection().prepareStatement(update, Statement.RETURN_GENERATED_KEYS)) {
+            prepare.accept(stmt);
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getLong(generateColumnIndex);
+            }
+        }
+        throw new IllegalArgumentException("Not found generated key");
+    }
+
     Connection getConnection() {
         return connection;
     }

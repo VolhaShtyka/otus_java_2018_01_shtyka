@@ -4,9 +4,12 @@ import java.util.Objects;
 
 public class UsersDataSet {
 
-    private final String name;
-    private final int age;
+    private String name;
+    private Integer age;
     private long id;
+
+    public UsersDataSet() {
+    }
 
     public UsersDataSet(String name, int age) {
         this.name = name;

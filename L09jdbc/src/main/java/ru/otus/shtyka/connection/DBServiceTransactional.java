@@ -2,63 +2,69 @@ package ru.otus.shtyka.connection;
 
 import ru.otus.shtyka.base.UsersDataSet;
 import ru.otus.shtyka.executor.Executor;
+import ru.otus.shtyka.reflection.ReflectionHelper;
 
+import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DBServiceTransactional extends DBServiceConnection {
-    private static final String INSERT_INTO_USER = "insert into User (name, age) values(?, ?)";
-    private static final String SELECT_USER_NAME = "select name from User where id=%s";
-    private static final String SELECT_USER_ID = "select id from User where name='%s'";
-    private static final String SELECT_USER = "select * from User where id=%s";
+    private static final String SELECT_USER_NAME = "select name from %s where id=%s";
+    private static final String SELECT_USER = "select * from %s where id=%s";
 
     @Override
-    public String getUserName(long id) throws SQLException {
+    public String getUserName(String tableName, long id) throws SQLException {
         Executor execT = new Executor(getConnection());
-        return execT.execQuery(String.format(SELECT_USER_NAME, id), result -> {
+        return execT.execQuery(String.format(SELECT_USER_NAME, tableName, id), result -> {
             result.next();
             return result.getString("name");
         });
     }
 
-    private long getId(String name) throws SQLException {
-        Executor execT = new Executor(getConnection());
-        return execT.execQuery(String.format(SELECT_USER_ID, name), result -> {
-            result.next();
-            return result.getLong("id");
-        });
-    }
 
     @Override
     public <T extends UsersDataSet> void save(T user) throws SQLException {
         try {
             Executor exec = new Executor(getConnection());
-            getConnection().setAutoCommit(false);
-            exec.execUpdate(INSERT_INTO_USER, statement -> {
-                statement.setString(1, user.getName());
-                statement.setInt(2, user.getAge());
-                statement.execute();
-            });
+            long generatedId = exec.execUpdate(generateInsertSQL(user),
+                    PreparedStatement::execute, 1);
+            user.setId(generatedId);
             getConnection().commit();
-            user.setId(getId(user.getName()));
         } catch (SQLException e) {
             e.printStackTrace();
             getConnection().rollback();
-        } finally {
-            getConnection().setAutoCommit(true);
         }
     }
 
     @Override
     public <T extends UsersDataSet> T load(long userId, Class<T> clazz) throws SQLException {
         Executor executor = new Executor(getConnection());
-        return executor.execQuery(String.format(SELECT_USER, userId), result -> {
+        return executor.execQuery(String.format(SELECT_USER, clazz.getSimpleName(), userId), result -> {
             result.next();
-            long id = result.getLong("id");
-            String name = result.getString("name");
-            int age = result.getInt("age");
-            UsersDataSet user = new UsersDataSet(name, age);
-            user.setId(id);
-            return (T) user;
+            T user = ReflectionHelper.instantiate(clazz);
+            for (Field field : clazz.getDeclaredFields()) {
+                ReflectionHelper.setFieldValue(user, field, result.getObject(field.getName()));
+            }
+            return user;
         });
+    }
+
+    private String generateInsertSQL(Object o) {
+        StringBuilder insert = new StringBuilder("insert into ");
+        insert.append(o.getClass().getSimpleName()).append(" (");
+        StringBuilder values = new StringBuilder();
+        for (Field field : o.getClass().getDeclaredFields()) {
+            if ("id".equals(field.getName())) {
+                continue;
+            }
+            insert.append(field.getName()).append(",");
+            values.append("\'").append(ReflectionHelper.getFieldValue(o, field)).append("\'").append(", ");
+        }
+        insert.deleteCharAt(insert.lastIndexOf(","));
+        insert.append(") values (");
+        insert.append(values);
+        insert.deleteCharAt(insert.lastIndexOf(","));
+        insert.append(")");
+        return insert.toString();
     }
 }
