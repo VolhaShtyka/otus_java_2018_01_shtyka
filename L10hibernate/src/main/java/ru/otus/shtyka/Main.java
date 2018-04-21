@@ -1,8 +1,8 @@
 package ru.otus.shtyka;
 
-import ru.otus.shtyka.base.DBService;
-import ru.otus.shtyka.base.entity.Phone;
-import ru.otus.shtyka.base.entity.User;
+import ru.otus.shtyka.entity.Phone;
+import ru.otus.shtyka.entity.User;
+import ru.otus.shtyka.service.DBService;
 import ru.otus.shtyka.service.DBServiceImpl;
 
 import java.util.List;
@@ -26,6 +26,12 @@ public class Main {
 
         String userName = dbService.getUserNameById(petrov.getId());
         System.out.println(userName);
+
+        String userNameFromCache = dbService.getUserNameById(petrov.getId());
+        System.out.println(userNameFromCache);
+
+        String userNameFromCache2 = dbService.getUserNameById(petrov.getId());
+        System.out.println(userNameFromCache2);
 
         List<User> dataSets = dbService.loadAll(User.class);
         for (User userDataSet : dataSets) {

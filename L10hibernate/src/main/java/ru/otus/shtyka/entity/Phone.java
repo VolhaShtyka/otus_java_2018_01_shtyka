@@ -1,4 +1,6 @@
-package ru.otus.shtyka.base.entity;
+package ru.otus.shtyka.entity;
+
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,6 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "phone")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Phone extends BaseEntity {
 
     @Column(name = "number")

@@ -1,4 +1,4 @@
-package ru.otus.shtyka.base;
+package ru.otus.shtyka.service;
 
 import java.util.List;
 

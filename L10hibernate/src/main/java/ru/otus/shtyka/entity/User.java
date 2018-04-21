@@ -1,10 +1,13 @@
-package ru.otus.shtyka.base.entity;
+package ru.otus.shtyka.entity;
+
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "user")
 public class User extends BaseEntity {
 

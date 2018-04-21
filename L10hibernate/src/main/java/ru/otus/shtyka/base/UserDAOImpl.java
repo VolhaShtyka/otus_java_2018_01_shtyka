@@ -1,9 +1,10 @@
-package ru.otus.shtyka.service.dao;
+package ru.otus.shtyka.base;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import ru.otus.shtyka.base.UserDAO;
-import ru.otus.shtyka.base.entity.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.otus.shtyka.entity.User;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -12,6 +13,8 @@ import java.util.List;
 
 public class UserDAOImpl implements UserDAO {
 
+    private static Logger logger = LoggerFactory.getLogger(UserDAOImpl.class);
+
     private Session session;
 
     public UserDAOImpl(Session session) {
@@ -19,6 +22,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     public String getUserNameById(long id) {
+        logger.info("Getting user by id " + id);
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<User> criteria = builder.createQuery(User.class);
         Root<User> from = criteria.from(User.class);

@@ -1,4 +1,4 @@
-package ru.otus.shtyka.base.entity;
+package ru.otus.shtyka.entity;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

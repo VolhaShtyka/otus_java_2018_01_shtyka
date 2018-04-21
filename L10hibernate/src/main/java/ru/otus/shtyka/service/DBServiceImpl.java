@@ -6,12 +6,11 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import ru.otus.shtyka.base.DBService;
-import ru.otus.shtyka.base.entity.Address;
-import ru.otus.shtyka.base.entity.BaseEntity;
-import ru.otus.shtyka.base.entity.Phone;
-import ru.otus.shtyka.base.entity.User;
-import ru.otus.shtyka.service.dao.UserDAOImpl;
+import ru.otus.shtyka.base.UserDAOImpl;
+import ru.otus.shtyka.entity.Address;
+import ru.otus.shtyka.entity.BaseEntity;
+import ru.otus.shtyka.entity.Phone;
+import ru.otus.shtyka.entity.User;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -41,6 +40,9 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
         configuration.setProperty("hibernate.hbm2ddl.auto", "create");
         configuration.setProperty("hibernate.connection.useSSL", "false");
         configuration.setProperty("hibernate.enable_lazy_load_no_trans", "true");
+        configuration.setProperty("hibernate.cache.use_second_level_cache", "true");
+        configuration.setProperty("hibernate.cache.use_query_cache", "true");
+        configuration.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
 
         sessionFactory = createSessionFactory(configuration);
     }
