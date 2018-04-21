@@ -4,14 +4,13 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import ru.otus.shtyka.base.UserDAO;
 import ru.otus.shtyka.base.entity.User;
-import ru.otus.shtyka.service.DBServiceImpl;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
-public class UserDAOImpl extends DBServiceImpl implements UserDAO {
+public class UserDAOImpl implements UserDAO {
 
     private Session session;
 

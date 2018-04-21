@@ -1,5 +1,6 @@
 package ru.otus.shtyka;
 
+import ru.otus.shtyka.base.DBService;
 import ru.otus.shtyka.base.entity.Phone;
 import ru.otus.shtyka.base.entity.User;
 import ru.otus.shtyka.service.DBServiceImpl;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        DBServiceImpl dbService = new DBServiceImpl();
+        DBService dbService = new DBServiceImpl();
 
         User sidorov = new User("Sidorov", 22);
         User petrov = new User("Petrov", 38);
@@ -16,7 +17,7 @@ public class Main {
         petrov.getAddress().setStreet("Kurskaya");
         Phone phone = new Phone();
         phone.setNumber("9876");
-        sidorov.getPhones().add(phone);
+        sidorov.addPhone(phone);
         dbService.save(sidorov);
         dbService.save(petrov);
 

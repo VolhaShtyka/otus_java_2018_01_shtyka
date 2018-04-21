@@ -50,8 +50,12 @@ public class User extends BaseEntity {
         return address;
     }
 
-    public List<Phone> getPhones() {
-        return phones;
+    public void addPhone(Phone phone) {
+        phones.add(phone);
+    }
+
+    public void removePhone(Phone phone) {
+        phones.remove(phone);
     }
 
     @Override
