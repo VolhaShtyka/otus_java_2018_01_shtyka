@@ -39,4 +39,11 @@ public class UserDAOImpl implements UserDAO {
         Query<User> query = session.createQuery(criteria);
         return query.list();
     }
+
+    public List<User> loadAll() {
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<User> criteria = builder.createQuery(User.class);
+        criteria.from(User.class);
+        return session.createQuery(criteria).list();
+    }
 }

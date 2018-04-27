@@ -33,11 +33,10 @@ public class Main {
         String userNameFromCache2 = dbService.getUserNameById(petrov.getId());
         System.out.println(userNameFromCache2);
 
-        List<User> dataSets = dbService.loadAll(User.class);
+        List<User> dataSets = dbService.loadAll();
         for (User userDataSet : dataSets) {
             System.out.println(userDataSet);
         }
-
         dbService.shutdown();
     }
 }

@@ -1,28 +1,40 @@
-package ru.otus.shtyka;
+package ru.otus.shtyka.cache;
 
-import java.lang.ref.SoftReference;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.function.Function;
 
 public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
+
+    private static CacheEngineImpl CACHE_ENGINE = null;
     private static final int TIME_THRESHOLD_MS = 5;
+    private static final int SIZE = 10;
 
     private final int maxElements;
     private final long lifeTimeMs;
     private final long idleTimeMs;
     private final boolean isEternal;
 
-    private final Map<K, SoftReference<MyElement<K, V>>> elements = new LinkedHashMap<>();
+    private final Map<K, MyElement<K, V>> elements = new LinkedHashMap<>();
     private final Timer timer = new Timer();
 
     private int hit = 0;
     private int miss = 0;
 
-    CacheEngineImpl(int maxElements, long lifeTimeMs, long idleTimeMs, boolean isEternal) {
+    private CacheEngineImpl(int maxElements, long lifeTimeMs, long idleTimeMs, boolean isEternal) {
         this.maxElements = maxElements;
         this.lifeTimeMs = lifeTimeMs > 0 ? lifeTimeMs : 0;
         this.idleTimeMs = idleTimeMs > 0 ? idleTimeMs : 0;
         this.isEternal = lifeTimeMs == 0 && idleTimeMs == 0 || isEternal;
+    }
+
+    public static CacheEngineImpl getInstance() {
+        if (CACHE_ENGINE == null) {
+            CACHE_ENGINE = new CacheEngineImpl(SIZE, 0, 0, true);
+        }
+        return CACHE_ENGINE;
     }
 
     public void put(K key, V value) {
@@ -31,7 +43,7 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
             elements.remove(firstKey);
         }
 
-        SoftReference<MyElement<K, V>> element = new SoftReference<>(new MyElement<>(key, value));
+        MyElement<K, V> element = new MyElement<>(key, value);
         elements.put(key, element);
 
         if (!isEternal) {
@@ -44,23 +56,21 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
                 timer.schedule(idleTimerTask, idleTimeMs, idleTimeMs);
             }
         }
+        System.out.println("Saved in cache: " + value);
     }
 
     public V get(K key) {
-        SoftReference<MyElement<K, V>> softReference = elements.get(key);
-        if (softReference == null) {
+        MyElement<K, V> element = elements.get(key);
+        if (element == null) {
             miss++;
+            System.out.println("Miss");
+            return null;
         } else {
-            MyElement<K, V> element = softReference.get();
-            if (element != null) {
-                hit++;
-                element.setAccessed();
-                return element.getValue();
-            } else {
-                miss++;
-            }
+            hit++;
+            element.setAccessed();
+            System.out.println("Getting from cache: " + element.getValue());
+            return element.getValue();
         }
-        return null;
     }
 
     public int getHitCount() {
@@ -80,7 +90,7 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
         return new TimerTask() {
             @Override
             public void run() {
-                MyElement<K, V> element = elements.get(key).get();
+                MyElement<K, V> element = elements.get(key);
                 if (element == null || isT1BeforeT2(timeFunction.apply(element), System.currentTimeMillis())) {
                     elements.remove(key);
                     this.cancel();

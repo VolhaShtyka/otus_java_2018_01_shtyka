@@ -1,4 +1,4 @@
-package ru.otus.shtyka;
+package ru.otus.shtyka.cache;
 
 /**
  * Created by tully.

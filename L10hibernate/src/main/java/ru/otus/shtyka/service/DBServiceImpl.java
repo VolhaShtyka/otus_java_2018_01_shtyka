@@ -7,13 +7,12 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import ru.otus.shtyka.base.UserDAOImpl;
+import ru.otus.shtyka.cache.CacheEngineImpl;
 import ru.otus.shtyka.entity.Address;
 import ru.otus.shtyka.entity.BaseEntity;
 import ru.otus.shtyka.entity.Phone;
 import ru.otus.shtyka.entity.User;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.function.Function;
 
@@ -57,23 +56,28 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
     @Override
     public void save(T t) {
         runInSession(session -> session.save(t));
+
     }
 
     @Override
     public T load(Class<T> clazz, long id) {
-        return runInSession(session -> session.load(clazz, id));
+        T t = (T) CacheEngineImpl.getInstance().get(id);
+        if (t == null) {
+            return runInSession(session -> session.load(clazz, id));
+        }
+        return t;
     }
 
-    @Override
-    public List<T> loadAll(Class<T> clazz) {
-        return runInSession(session -> {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<T> criteria = builder.createQuery(clazz);
-            criteria.from(clazz);
-            return session.createQuery(criteria).list();
+    public List<User> loadAll() {
+        List<User> users = runInSession(session -> {
+            UserDAOImpl dao = new UserDAOImpl(session);
+            return dao.loadAll();
         });
+        for (User user : users) {
+            CacheEngineImpl.getInstance().put(user.getId(), user);
+        }
+        return users;
     }
-
 
     public List<User> loadByName(String name) {
         return runInSession(session -> {
@@ -83,13 +87,18 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
     }
 
     public String getUserNameById(long id) {
-        return runInSession(session -> {
-            UserDAOImpl dao = new UserDAOImpl(session);
-            return dao.getUserNameById(id);
-        });
+        User t = (User) CacheEngineImpl.getInstance().get(id);
+        if (t == null) {
+            return runInSession(session -> {
+                UserDAOImpl dao = new UserDAOImpl(session);
+                return dao.getUserNameById(id);
+            });
+        }
+        return t.getName();
     }
 
     public void shutdown() {
+        CacheEngineImpl.getInstance().dispose();
         sessionFactory.close();
     }
 
