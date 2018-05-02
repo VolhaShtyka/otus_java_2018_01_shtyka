@@ -8,9 +8,7 @@ import java.util.function.Function;
 
 public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
 
-    private static CacheEngineImpl CACHE_ENGINE = null;
     private static final int TIME_THRESHOLD_MS = 5;
-    private static final int SIZE = 10;
 
     private final int maxElements;
     private final long lifeTimeMs;
@@ -23,18 +21,11 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
     private int hit = 0;
     private int miss = 0;
 
-    private CacheEngineImpl(int maxElements, long lifeTimeMs, long idleTimeMs, boolean isEternal) {
+    public CacheEngineImpl(int maxElements, long lifeTimeMs, long idleTimeMs, boolean isEternal) {
         this.maxElements = maxElements;
         this.lifeTimeMs = lifeTimeMs > 0 ? lifeTimeMs : 0;
         this.idleTimeMs = idleTimeMs > 0 ? idleTimeMs : 0;
         this.isEternal = lifeTimeMs == 0 && idleTimeMs == 0 || isEternal;
-    }
-
-    public static CacheEngineImpl getInstance() {
-        if (CACHE_ENGINE == null) {
-            CACHE_ENGINE = new CacheEngineImpl(SIZE, 0, 0, true);
-        }
-        return CACHE_ENGINE;
     }
 
     public void put(K key, V value) {

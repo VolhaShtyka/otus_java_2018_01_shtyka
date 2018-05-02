@@ -7,6 +7,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import ru.otus.shtyka.base.UserDAOImpl;
+import ru.otus.shtyka.cache.CacheEngine;
 import ru.otus.shtyka.cache.CacheEngineImpl;
 import ru.otus.shtyka.entity.Address;
 import ru.otus.shtyka.entity.BaseEntity;
@@ -19,6 +20,7 @@ import java.util.function.Function;
 public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
 
     private static SessionFactory sessionFactory = null;
+    private CacheEngine cacheEngine = null;
 
     public DBServiceImpl() {
         if (sessionFactory != null) {
@@ -44,6 +46,7 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
         configuration.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
 
         sessionFactory = createSessionFactory(configuration);
+        cacheEngine = new CacheEngineImpl(10, 0, 0, true);
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {
@@ -56,15 +59,16 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
     @Override
     public void save(T t) {
         runInSession(session -> session.save(t));
-
+        cacheEngine.put(t.getId(), t);
     }
 
     @Override
     public T load(Class<T> clazz, long id) {
-        T t = (T) CacheEngineImpl.getInstance().get(id);
+        T t = (T) cacheEngine.get(id);
         if (t == null) {
             return runInSession(session -> session.load(clazz, id));
         }
+        cacheEngine.put(t.getId(), t);
         return t;
     }
 
@@ -74,7 +78,7 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
             return dao.loadAll();
         });
         for (User user : users) {
-            CacheEngineImpl.getInstance().put(user.getId(), user);
+            cacheEngine.put(user.getId(), user);
         }
         return users;
     }
@@ -87,7 +91,7 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
     }
 
     public String getUserNameById(long id) {
-        User t = (User) CacheEngineImpl.getInstance().get(id);
+        User t = (User) cacheEngine.get(id);
         if (t == null) {
             return runInSession(session -> {
                 UserDAOImpl dao = new UserDAOImpl(session);
@@ -98,7 +102,7 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
     }
 
     public void shutdown() {
-        CacheEngineImpl.getInstance().dispose();
+        cacheEngine.dispose();
         sessionFactory.close();
     }
 

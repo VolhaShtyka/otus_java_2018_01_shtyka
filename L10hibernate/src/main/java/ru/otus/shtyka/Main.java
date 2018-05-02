@@ -24,14 +24,11 @@ public class Main {
         User user = (User) dbService.load(User.class, sidorov.getId());
         System.out.println(user);
 
+        User userFromCache = (User) dbService.load(User.class, sidorov.getId());
+        System.out.println(userFromCache);
+
         String userName = dbService.getUserNameById(petrov.getId());
         System.out.println(userName);
-
-        String userNameFromCache = dbService.getUserNameById(petrov.getId());
-        System.out.println(userNameFromCache);
-
-        String userNameFromCache2 = dbService.getUserNameById(petrov.getId());
-        System.out.println(userNameFromCache2);
 
         List<User> dataSets = dbService.loadAll();
         for (User userDataSet : dataSets) {
