@@ -1,5 +1,6 @@
 package ru.otus.shtyka.service;
 
+import ru.otus.shtyka.cache.CacheEngine;
 import ru.otus.shtyka.entity.User;
 
 import java.util.List;
@@ -13,6 +14,8 @@ public interface DBService<T> {
     List<User> loadAll();
 
     String getUserNameById(long id);
+
+    CacheEngine getCacheEngine();
 
     void shutdown();
 }

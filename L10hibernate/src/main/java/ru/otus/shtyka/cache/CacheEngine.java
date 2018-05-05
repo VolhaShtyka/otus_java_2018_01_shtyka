@@ -13,5 +13,9 @@ public interface CacheEngine<K, V> {
 
     int getMissCount();
 
+    int getCurrentSize();
+
+    int getMaxSize();
+
     void dispose();
 }

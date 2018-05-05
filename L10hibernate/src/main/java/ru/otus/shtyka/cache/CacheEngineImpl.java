@@ -72,6 +72,14 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
         return miss;
     }
 
+    public int getCurrentSize() {
+        return elements.size();
+    }
+
+    public int getMaxSize() {
+        return maxElements;
+    }
+
     @Override
     public void dispose() {
         timer.cancel();

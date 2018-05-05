@@ -49,6 +49,10 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
         cacheEngine = new CacheEngineImpl(10, 0, 0, true);
     }
 
+    public CacheEngine getCacheEngine() {
+        return cacheEngine;
+    }
+
     private static SessionFactory createSessionFactory(Configuration configuration) {
         StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
         builder.applySettings(configuration.getProperties());
@@ -68,7 +72,6 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
         if (t == null) {
             return runInSession(session -> session.load(clazz, id));
         }
-        cacheEngine.put(t.getId(), t);
         return t;
     }
 
