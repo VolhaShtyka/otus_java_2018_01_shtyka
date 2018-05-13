@@ -1,0 +1,27 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Users Cache</title>
+    <script>
+        function refresh() {
+            location.reload();
+        }
+    </script>
+</head>
+<body onload='setInterval(function(){refresh()}, 1000 ); '>
+<div class="top">
+
+</div>
+<p>Session by: ${login}!</p>
+<br>
+
+<p>Hit count: ${hit}</p>
+
+<p>Miss count: ${miss}</p>
+
+<p>The current size of the cache: ${size}</p>
+
+<p>The max size of the cache: ${maxSize}</p>
+
+
+</body>
+</html>
