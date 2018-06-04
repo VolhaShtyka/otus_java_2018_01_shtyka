@@ -1,11 +1,12 @@
-package ru.otus.shtyka.service;
+package ru.otus.shtyka.app;
 
 import ru.otus.shtyka.cache.CacheEngine;
 import ru.otus.shtyka.entity.User;
+import ru.otus.shtyka.messageSystem.Addressee;
 
 import java.util.List;
 
-public interface DBService<T> {
+public interface DBService<T>  extends Addressee {
 
     void save(T user);
 
@@ -18,4 +19,6 @@ public interface DBService<T> {
     CacheEngine getCacheEngine();
 
     void shutdown();
+
+    void init();
 }

@@ -8,12 +8,17 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import ru.otus.shtyka.app.DBService;
 import ru.otus.shtyka.base.UserDAOImpl;
 import ru.otus.shtyka.cache.CacheEngine;
 import ru.otus.shtyka.entity.Address;
 import ru.otus.shtyka.entity.BaseEntity;
 import ru.otus.shtyka.entity.Phone;
 import ru.otus.shtyka.entity.User;
+import ru.otus.shtyka.messageSystem.MessageSystemImpl;
+import ru.otus.shtyka.messageSystem.MessageAddress;
+import ru.otus.shtyka.messageSystem.MessageSystemContext;
 
 import java.util.List;
 import java.util.function.Function;
@@ -22,6 +27,11 @@ import java.util.function.Function;
 public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
 
     private static SessionFactory sessionFactory = null;
+
+    private MessageAddress address;
+
+    @Autowired
+    private MessageSystemContext msgSystemContext;
 
     @Autowired
     private CacheEngine cacheEngine;
@@ -48,20 +58,25 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
         configuration.setProperty("hibernate.cache.use_second_level_cache", "true");
         configuration.setProperty("hibernate.cache.use_query_cache", "true");
         configuration.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
-
         sessionFactory = createSessionFactory(configuration);
+
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     public CacheEngine getCacheEngine() {
         return cacheEngine;
     }
 
-    private static SessionFactory createSessionFactory(Configuration configuration) {
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
-        builder.applySettings(configuration.getProperties());
-        ServiceRegistry serviceRegistry = builder.build();
-        return configuration.buildSessionFactory(serviceRegistry);
+    @Override
+    public MessageAddress getAddress() {
+        return address;
     }
+
+    @Override
+    public MessageSystemImpl getMS() {
+        return (MessageSystemImpl) msgSystemContext.getMessageSystem();
+    }
+
 
     @Override
     public void save(T t) {
@@ -78,6 +93,7 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
         return t;
     }
 
+    @Override
     public List<User> loadAll() {
         List<User> users = runInSession(session -> {
             UserDAOImpl dao = new UserDAOImpl(session);
@@ -89,13 +105,7 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
         return users;
     }
 
-    public List<User> loadByName(String name) {
-        return runInSession(session -> {
-            UserDAOImpl dao = new UserDAOImpl(session);
-            return dao.loadByName(name);
-        });
-    }
-
+    @Override
     public String getUserNameById(long id) {
         User t = (User) cacheEngine.get(id);
         if (t == null) {
@@ -107,9 +117,24 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
         return t.getName();
     }
 
+    @Override
+    public void init() {
+        address = new MessageAddress("DB");
+        msgSystemContext.setDbAddress(address);
+        msgSystemContext.getMessageSystem().addAddressee(this);
+        msgSystemContext.getMessageSystem().start();
+    }
+
     public void shutdown() {
         cacheEngine.dispose();
         sessionFactory.close();
+    }
+
+    private static SessionFactory createSessionFactory(Configuration configuration) {
+        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
+        builder.applySettings(configuration.getProperties());
+        ServiceRegistry serviceRegistry = builder.build();
+        return configuration.buildSessionFactory(serviceRegistry);
     }
 
     private <R> R runInSession(Function<Session, R> function) {

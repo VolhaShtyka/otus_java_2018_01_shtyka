@@ -7,18 +7,20 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-import ru.otus.shtyka.cache.CacheEngine;
+import ru.otus.shtyka.app.DBService;
+import ru.otus.shtyka.app.FrontendService;
 import ru.otus.shtyka.entity.User;
-import ru.otus.shtyka.service.DBService;
+import ru.otus.shtyka.front.FrontendServiceImpl;
+import ru.otus.shtyka.messageSystem.MessageAddress;
 
 import java.net.HttpCookie;
 import java.util.List;
 import java.util.Set;
 
-import static ru.otus.shtyka.servlet.LoginServlet.ADMIN_LOGIN;
-
 @WebSocket
 public class CacheWebSocket {
+
+    private static final String ADMIN_LOGIN = "root";
 
     private Set<CacheWebSocket> users;
 
@@ -27,10 +29,10 @@ public class CacheWebSocket {
     @Autowired
     private DBService dbService;
 
-    @Autowired
-    private CacheEngine cacheEngine;
-
     CacheWebSocket(Set<CacheWebSocket> users) {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        dbService.init();
+        dbService.getCacheEngine().register(this);
         this.users = users;
     }
 
@@ -52,8 +54,6 @@ public class CacheWebSocket {
         setSession(session);
         System.out.println("onOpen");
         if (checkPermission()) {
-            SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-            cacheEngine.register(this);
             checkConnectDB();
         } else {
             onMessage("Permission denied");
@@ -77,7 +77,7 @@ public class CacheWebSocket {
 
     private boolean checkPermission() {
         List<HttpCookie> cookies = getSession().getUpgradeRequest().getCookies();
-        if (cookies.isEmpty()){
+        if (cookies.isEmpty()) {
             return false;
         }
         for (HttpCookie cookie : cookies) {
@@ -89,17 +89,22 @@ public class CacheWebSocket {
     }
 
     private void checkConnectDB() {
+        MessageAddress frontAddress = new MessageAddress("Frontend");
+        FrontendService frontendService = new FrontendServiceImpl(frontAddress);
+        frontendService.init();
         User sidorov = new User("Sidorov", 22);
-        dbService.save(sidorov);
-        dbService.save(new User("Ivanov", 98));
-        dbService.load(User.class, sidorov.getId());
+        frontendService.save(sidorov);
+        frontendService.load(User.class, sidorov.getId());
+
         try {
             Thread.sleep(5000);
         } catch (Exception u) {
             u.printStackTrace();
         }
-        dbService.load(User.class, sidorov.getId());
-        dbService.load(User.class, 5);
-        dbService.loadAll();
+        frontendService.load(User.class, sidorov.getId());
+        frontendService.save(new User("Ivanov", 98));
+        frontendService.load(User.class, sidorov.getId());
+        frontendService.load(User.class, sidorov.getId());
+        frontendService.load(User.class, 5);
     }
 }

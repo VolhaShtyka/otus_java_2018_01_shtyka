@@ -1,12 +1,10 @@
 package ru.otus.shtyka.cache;
 
-import org.springframework.stereotype.Service;
 import ru.otus.shtyka.websocket.CacheWebSocket;
 
 /**
  * Created by tully.
  */
-@Service
 public interface CacheEngine<K, V> {
 
     void put(K key, V value);

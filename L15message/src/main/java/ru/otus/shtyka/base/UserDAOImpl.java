@@ -28,7 +28,12 @@ public class UserDAOImpl implements UserDAO {
         Root<User> from = criteria.from(User.class);
         criteria.where(builder.equal(from.get("id"), id));
         Query<User> query = session.createQuery(criteria);
-        return query.uniqueResult().getName();
+        try {
+            return query.uniqueResult().getName();
+        } catch (NullPointerException e){
+            throw new AssertionError("this id does not exist");
+        }
+
     }
 
     public List<User> loadByName(String name) {
