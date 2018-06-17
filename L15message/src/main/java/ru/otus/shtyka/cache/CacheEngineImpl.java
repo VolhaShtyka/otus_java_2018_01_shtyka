@@ -1,17 +1,19 @@
 package ru.otus.shtyka.cache;
 
 import org.springframework.stereotype.Service;
-import ru.otus.shtyka.websocket.CacheWebSocket;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
 
+    private final static Logger logger = Logger.getLogger(CacheEngineImpl.class.getName());
     private static final int TIME_THRESHOLD_MS = 5;
 
     private final int maxElements;
@@ -25,13 +27,7 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
     private int hit = 0;
     private int miss = 0;
 
-    private CacheWebSocket ws;
-
-    public void register(CacheWebSocket ws) {
-        this.ws = ws;
-    }
-
-    public CacheEngineImpl(int maxElements, long lifeTimeMs, long idleTimeMs, boolean isEternal) {
+    private CacheEngineImpl(int maxElements, long lifeTimeMs, long idleTimeMs, boolean isEternal) {
         this.maxElements = maxElements;
         this.lifeTimeMs = lifeTimeMs > 0 ? lifeTimeMs : 0;
         this.idleTimeMs = idleTimeMs > 0 ? idleTimeMs : 0;
@@ -61,22 +57,19 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
                 timer.schedule(idleTimerTask, idleTimeMs, idleTimeMs);
             }
         }
-        System.out.println("Saved in cache: " + value);
-        ws.onMessage(getCacheInfo());
+        logger.log(Level.INFO, "Saved in cache: " + value);
     }
 
     public V get(K key) {
         MyElement<K, V> element = elements.get(key);
         if (element == null) {
             miss++;
-            System.out.println("Miss");
-            ws.onMessage(getCacheInfo());
+            logger.log(Level.INFO, "Miss by key: " + key);
             return null;
         } else {
             hit++;
             element.setAccessed();
-            System.out.println("Getting from cache: " + element.getValue());
-            ws.onMessage(getCacheInfo());
+            logger.log(Level.INFO, "Getting from cache: " + element.getValue());
             return element.getValue();
         }
     }
@@ -97,6 +90,13 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
         return maxElements;
     }
 
+    public String getCacheInfo() {
+        return "Hit count: " + getHitCount() + "\n" +
+                "Miss count: " + getMissCount() + "\n" +
+                "The current size of the cache: " + getCurrentSize() + "\n" +
+                "The max size of the cache: " + getMaxSize();
+    }
+
     @Override
     public void dispose() {
         timer.cancel();
@@ -113,13 +113,6 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
                 }
             }
         };
-    }
-
-    private String getCacheInfo() {
-        return "Hit count: " + getHitCount() + "\n" +
-                "Miss count: " + getMissCount() + "\n" +
-                "The current size of the cache: " + getCurrentSize() + "\n" +
-                "The max size of the cache: " + getMaxSize();
     }
 
     private boolean isT1BeforeT2(long t1, long t2) {

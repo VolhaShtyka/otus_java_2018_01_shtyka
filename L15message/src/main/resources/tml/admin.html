@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Admin</title>
+    <script src="js/cache.js" type="text/javascript"></script>
 </head>
-<body>
+<body onload="init();">
 <div class="top">
     <img src="images.png"/>
     <br/>
@@ -13,7 +14,13 @@
 <p>Hello Admin: ${login}!</p>
 <br/>
 <p>If you want to see the cache parameters click here</p>
-<a href="cache.html">CACHE<br/></a>
+<div>
+    <button type="button" onclick="sendCacheQuery();">Show cache</button>
+</div>
+
+<div>
+    <textarea id="cache" rows="10" cols="48" readonly="readonly"></textarea>
+</div>
 
 </body>
 </html>

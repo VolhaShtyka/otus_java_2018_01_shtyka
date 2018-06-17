@@ -21,9 +21,6 @@ public class MessageSystemContextImpl implements MessageSystemContext {
 
     private MessageAddress dbAddress;
 
-    public MessageSystemContextImpl() {
-    }
-
     public MessageSystem getMessageSystem() {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         return messageSystem;

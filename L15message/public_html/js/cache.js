@@ -6,19 +6,20 @@ init = function () {
 
     }
     ws.onmessage = function (event) {
-        var $textarea = document.getElementById("cache");
-        $textarea.value = event.data;
-        console.log("onmessage: " + event.data)
+        setInterval(function(){writeCacheInfo(event)}, 1000);
     }
-
-    var $input = document.getElementById("username");
-    $input.value = getCookie("login");
 
     ws.onclose = function (event) {
 
     }
-    deleteAllCookies();
+    //deleteAllCookies();
 };
+
+function writeCacheInfo(event){
+    var $textarea = document.getElementById("cache");
+    $textarea.value = event.data;
+    console.log("onmessage: " + event.data)
+}
 
 function getCookie(name) {
   var matches = document.cookie.match(new RegExp(
@@ -36,4 +37,8 @@ function deleteAllCookies() {
         var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
+}
+
+function sendCacheQuery() {
+    ws.send("cache");
 }

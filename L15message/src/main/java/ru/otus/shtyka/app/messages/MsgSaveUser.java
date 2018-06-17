@@ -1,4 +1,4 @@
-package ru.otus.shtyka.service;
+package ru.otus.shtyka.app.messages;
 
 import ru.otus.shtyka.app.DBService;
 import ru.otus.shtyka.app.MsgToDB;
@@ -19,5 +19,6 @@ public class MsgSaveUser<T> extends MsgToDB {
     @Override
     public void exec(DBService dbService) {
         dbService.save(user);
+        dbService.getMS().sendMessage(new MsgGetUserByIdAnswer(getTo(), getFrom(), user.getId(), user.getName()));
     }
 }

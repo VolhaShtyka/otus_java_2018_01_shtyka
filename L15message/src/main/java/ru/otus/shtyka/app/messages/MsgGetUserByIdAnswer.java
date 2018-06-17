@@ -1,17 +1,14 @@
-package ru.otus.shtyka.front;
+package ru.otus.shtyka.app.messages;
 
 import ru.otus.shtyka.app.FrontendService;
 import ru.otus.shtyka.app.MsgToFrontend;
 import ru.otus.shtyka.messageSystem.MessageAddress;
 
-/**
- * Created by tully.
- */
-public class MsgGetUserNameByIdAnswer extends MsgToFrontend {
+public class MsgGetUserByIdAnswer extends MsgToFrontend {
     private final String name;
     private final long id;
 
-    public MsgGetUserNameByIdAnswer(MessageAddress from, MessageAddress to, long id, String name) {
+    MsgGetUserByIdAnswer(MessageAddress from, MessageAddress to, long id, String name) {
         super(from, to);
         this.name = name;
         this.id = id;

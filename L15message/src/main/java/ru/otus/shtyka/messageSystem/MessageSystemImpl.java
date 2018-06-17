@@ -43,12 +43,14 @@ public class MessageSystemImpl implements MessageSystem {
         Thread thread;
         for (Map.Entry<MessageAddress, Addressee> entry : addresseeMap.entrySet()) {
             String name = "MS-worker-" + entry.getKey().getId();
+            logger.log(Level.INFO, "MessageAddress: " + entry.getKey().getId() + " to " + entry.getValue());
             thread = new Thread(() -> {
                 while (true) {
                     ConcurrentLinkedQueue<Message> queue = messagesMap.get(entry.getKey());
                     while (!queue.isEmpty()) {
                         Message message = queue.poll();
                         message.exec(entry.getValue());
+                        logger.log(Level.INFO, "Finish executing message from " + message.getClass().getSimpleName());
                     }
                     try {
                         Thread.sleep(MessageSystemImpl.DEFAULT_STEP_TIME);

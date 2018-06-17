@@ -5,5 +5,9 @@ public interface MessageSystemContext {
 
     void setDbAddress(MessageAddress dbAddress);
 
+    void setFrontAddress(MessageAddress dbAddress);
+
     MessageAddress getDbAddress();
+
+    MessageAddress getFrontAddress();
 }

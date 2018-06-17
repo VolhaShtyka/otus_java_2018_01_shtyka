@@ -16,10 +16,11 @@ import ru.otus.shtyka.entity.Address;
 import ru.otus.shtyka.entity.BaseEntity;
 import ru.otus.shtyka.entity.Phone;
 import ru.otus.shtyka.entity.User;
-import ru.otus.shtyka.messageSystem.MessageSystemImpl;
 import ru.otus.shtyka.messageSystem.MessageAddress;
 import ru.otus.shtyka.messageSystem.MessageSystemContext;
+import ru.otus.shtyka.messageSystem.MessageSystemImpl;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.function.Function;
 
@@ -118,6 +119,7 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
     }
 
     @Override
+    @PostConstruct
     public void init() {
         address = new MessageAddress("DB");
         msgSystemContext.setDbAddress(address);
@@ -128,6 +130,10 @@ public class DBServiceImpl<T extends BaseEntity> implements DBService<T> {
     public void shutdown() {
         cacheEngine.dispose();
         sessionFactory.close();
+    }
+
+    private MessageSystemContext getMsgSystemContext() {
+        return msgSystemContext;
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {
