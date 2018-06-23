@@ -4,22 +4,21 @@ package ru.otus.shtyka.app.messages;
 import ru.otus.shtyka.app.FrontendService;
 import ru.otus.shtyka.app.MsgToFrontend;
 import ru.otus.shtyka.messageSystem.MessageAddress;
-import ru.otus.shtyka.websocket.CacheWebSocket;
 
 public class MsgGetCacheEngineInfoAnswer extends MsgToFrontend {
 
     private String cacheInfo;
 
-    private CacheWebSocket ws;
+    private long userSessionId;
 
-    MsgGetCacheEngineInfoAnswer(MessageAddress from, MessageAddress to, String cacheInfo, CacheWebSocket ws) {
+    MsgGetCacheEngineInfoAnswer(MessageAddress from, MessageAddress to, String cacheInfo, long userSessionId) {
         super(from, to);
         this.cacheInfo = cacheInfo;
-        this.ws = ws;
+        this.userSessionId = userSessionId;
     }
 
     @Override
     public void exec(FrontendService frontendService) {
-        ws.send(cacheInfo);
+        frontendService.send(cacheInfo, userSessionId);
     }
 }

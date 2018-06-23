@@ -5,7 +5,6 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,8 +14,8 @@ import java.util.Map;
 
 public class LoginServlet extends HttpServlet {
 
-    static final String LOGIN_PARAMETER_NAME = "login";
-    public static final String ADMIN_LOGIN = "root";
+    private static final String LOGIN_PARAMETER_NAME = "login";
+    private static final String ADMIN_LOGIN = "root";
     private static final String PASSWORD_PARAMETER_NAME = "password";
     private static final String ADMIN_PASSWORD = "root";
     private static final String MESSAGE_PARAMETER = "message";
@@ -44,8 +43,6 @@ public class LoginServlet extends HttpServlet {
         String requestPassword = request.getParameter(PASSWORD_PARAMETER_NAME);
         String page;
         if (ADMIN_LOGIN.equals(requestLogin) && ADMIN_PASSWORD.equals(requestPassword)) {
-            saveToCookie(response, LOGIN_PARAMETER_NAME, requestLogin);
-            saveToSession(request, LOGIN_PARAMETER_NAME, requestLogin);
             page = getPage(ADMIN_PAGE_TEMPLATE, LOGIN_PARAMETER_NAME, ADMIN_LOGIN);
         } else {
             page = getPage(LOGIN_PAGE_TEMPLATE, MESSAGE_PARAMETER, MESSAGE);
@@ -58,14 +55,6 @@ public class LoginServlet extends HttpServlet {
         Map<String, Object> pageVariables = new HashMap<>();
         pageVariables.put(key, value);
         return templateProcessor.getPage(template, pageVariables);
-    }
-
-    private void saveToSession(HttpServletRequest request, String key, String value) {
-        request.getSession().setAttribute(key, value);
-    }
-
-    private void saveToCookie(HttpServletResponse response, String key, String value) {
-        response.addCookie(new Cookie(key, value));
     }
 
     private void setOK(HttpServletResponse response) {

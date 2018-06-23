@@ -11,6 +11,7 @@ import ru.otus.shtyka.messageSystem.Message;
 import ru.otus.shtyka.messageSystem.MessageAddress;
 import ru.otus.shtyka.messageSystem.MessageSystemContext;
 import ru.otus.shtyka.messageSystem.MessageSystemImpl;
+import ru.otus.shtyka.websocket.CacheWebSocket;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -27,6 +28,8 @@ public class FrontendServiceImpl<T extends User> implements FrontendService<T> {
     private MessageSystemContext msgSystemContext;
 
     private final Map<Long, String> users = new HashMap<>();
+
+    private Map<Long, CacheWebSocket> webSocketMap = new HashMap<>();
 
     @PostConstruct
     public void init() {
@@ -49,13 +52,29 @@ public class FrontendServiceImpl<T extends User> implements FrontendService<T> {
     }
 
     @Override
+    public void send(String cacheInfo, long userSessionId){
+        webSocketMap.get(userSessionId).send(cacheInfo);
+    }
+
+    @Override
     public MessageAddress getAddress() {
         return address;
     }
 
+    @Override
     public void addUser(long id, String name) {
         users.put(id, name);
         logger.log(Level.INFO, "User: " + name + " has id: " + id);
+    }
+
+    @Override
+    public void addWebSocket(long sessionId, CacheWebSocket ws) {
+        webSocketMap.put(sessionId, ws);
+    }
+
+    @Override
+    public void removeWebSocket(long sessionId){
+        webSocketMap.remove(sessionId);
     }
 
     @Override
