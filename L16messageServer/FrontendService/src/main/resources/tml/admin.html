@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Admin</title>
+    <script src="cache.js" type="text/javascript"></script>
+</head>
+<body onload="init();">
+<div class="top">
+    <img src="images.png"/>
+    <br/>
+</div>
+
+<p>Hello Admin: ${login}!</p>
+<br/>
+
+<p>If you want to see the cache parameters click here</p>
+<div>
+    <button type="button" onclick="sendCacheQuery();">Show cache</button>
+</div>
+<br/>
+
+<p>Please click this button to simulate a database</p>
+<div>
+    <button type="button" onclick="sendActions();">Some actions</button>
+</div>
+<br/>
+
+<div>
+    <textarea id="cache" rows="10" cols="48" readonly="readonly"></textarea>
+</div>
+
+</body>
+</html>
